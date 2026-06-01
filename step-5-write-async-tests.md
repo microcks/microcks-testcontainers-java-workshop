@@ -15,10 +15,41 @@ regarding an Event definition...
 
 Fortunately, Microcks and TestContainers make this thing easy!
 
-Let's review the test class `OrderServiceTests` under `src/test/java/org/acme/order/service` and the well-named `testEventIsPublishedWhenOrderIsCreated()` 
+Let's create a new test class `OrderServiceTests` under `src/test/java/org/acme/order/service` and the well-named `testEventIsPublishedWhenOrderIsCreated()` 
 method:
 
 ```java
+package org.acme.order.service;
+
+import io.github.microcks.testcontainers.model.EventMessage;
+import io.github.microcks.testcontainers.model.TestRequest;
+import io.github.microcks.testcontainers.model.TestResult;
+import io.github.microcks.testcontainers.model.TestRunnerType;
+import io.github.microcks.testcontainers.model.UnidirectionalEvent;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.acme.order.BaseIntegrationTest;
+import org.acme.order.service.model.Order;
+import org.acme.order.service.model.OrderInfo;
+import org.acme.order.service.model.ProductQuantity;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.containers.KafkaContainer;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+
 public class OrderServiceTests extends BaseIntegrationTest {
 
    @Autowired
@@ -68,7 +99,12 @@ public class OrderServiceTests extends BaseIntegrationTest {
       }
    }
 
-   [...]
+   private void ensureTopicExists(String topic) {
+      Properties properties = new Properties();
+      properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+      AdminClient adminClient = AdminClient.create(properties);
+      adminClient.createTopics(List.of(new NewTopic(topic, 1, Short.valueOf("1"))));
+   }
 }
 ```
 
@@ -170,6 +206,21 @@ Let's review the test class `OrderEventListenerTests` under `src/test/java/org/a
 method:
 
 ```java
+package org.acme.order.service;
+
+import org.acme.order.BaseIntegrationTest;
+import org.acme.order.service.model.Order;
+import org.acme.order.service.model.OrderStatus;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testcontainers.shaded.org.awaitility.core.ConditionTimeoutException;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+
 public class OrderEventListenerTests extends BaseIntegrationTest {
 
    @Autowired
@@ -247,6 +298,21 @@ sequenceDiagram
 
 You did it and succeed in writing integration tests for all your application component with minimum boilerplate code! 🤩 
 
+### 🎁 Bonus step - Understanding where all come from
+
+You're now certain that your application is able to consume message and trigger correct business code. But do you fully understand
+where this `lbroudoux` and `123-456-789` values are coming from?
+
+To further deepen you knowledge on this, please check the following elements:
+* Check `src/main/resources/order-events-asyncapi.yaml` file and especially the `messages/examples` section,
+* Use `docker ps` command or Docker Desktop to retrieve the local port where Microcks is actually started and open it in your browser and check:
+
+  * Mocks for **Order Events API - 0.1.0** and the publication frequency
+  * Can you change it?
+
+* Explore our [AsyncAPI Extensions](https://microcks.io/documentation/references/artifacts/asyncapi-conventions/#asyncapi-extensions) to see how your can control this
+
+
 ## Wrap-up
 
-Thanks a lot for being through this quite long demonstration. We hope you learned new techniques for integration tests with both REST and Async/Event-driven APIs. Cheers! 🍻
+Thanks a lot for being through this quite long workshop. We hope you learned new techniques for integration tests with both REST and Async/Event-driven APIs. Cheers! 🍻

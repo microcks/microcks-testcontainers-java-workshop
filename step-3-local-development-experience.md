@@ -242,5 +242,15 @@ This time you get another "exception" response:
 and this is because Microcks has created different simulations for the Pastry API 3rd party API based on API artifacts we loaded.
 Check the `src/test/resources/third-parties/apipastries-openapi.yaml` and `src/test/resources/third-parties/apipastries-postman-collection.json` files to get details.
 
+### 🎁 Bonus step - Explore Microcks UI and understand dispatchers
+
+* Use `docker ps` command or Docker Desktop to retrieve the local port where Microcks is actually started and open it in your browser
+* Review the mocked APIs:
+
+  * How can you visually check that the **API Pastries - 0.0.1** mock is called?
+  * How can you figure out that Microcks is sending back the correct response?
+
+* Explore [Dispatcher & dispatching rules](https://microcks.io/documentation/explanations/dispatching/) to learn more.
+
 ### 
 [Next](step-4-write-rest-tests.md)

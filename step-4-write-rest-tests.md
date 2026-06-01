@@ -50,9 +50,21 @@ In this section, we'll focus on testing the `Pastry API Client` component of our
 
 ![Pastry API Client](./assets/test-pastry-api-client.png)
 
-Let's review the test class `PastryAPIClientTests` under `src/test/java/org/acme/order/client`:
+Let's create a test class `PastryAPIClientTests` under `src/test/java/org/acme/order/client`:
 
 ```java
+package org.acme.order.client;
+
+import org.acme.order.BaseIntegrationTest;
+import org.acme.order.client.model.Pastry;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class PastryAPIClientTests extends BaseIntegrationTest {
 
    @Autowired
@@ -187,7 +199,7 @@ when()
       "lotto.winners.winnerId", hasItems(23, 54));
 ```
 
-This certainly works but presents 2 problems in my humble opinion:
+This certainly works but presents two problems in my humble opinion:
 * It's a lot of code to write! And it's apply to each API interaction because for each interaction it's probably a good idea to
   check the structure of same objects in the message. This lead to a fair amount of code!
 * The code you write here is actually a language specific translation of the OpenAPI specification for the `Order API`: so the same
@@ -200,6 +212,25 @@ without having to write assertions and validation of messages for API interactio
 Let's review the test class `OrderControllerContractTests` under `src/test/java/org/acme/order/api`:
 
 ```java
+package org.acme.order.api;
+
+import io.github.microcks.testcontainers.model.RequestResponsePair;
+import io.github.microcks.testcontainers.model.TestRequest;
+import io.github.microcks.testcontainers.model.TestResult;
+import io.github.microcks.testcontainers.model.TestRunnerType;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.acme.order.BaseIntegrationTest;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class OrderControllerContractTests extends BaseIntegrationTest {
 
    @Test
@@ -247,6 +278,20 @@ sequenceDiagram
 
 Our `OrderController` development is technically correct: all the JSON and HTTP serialization layers have been tested!
 
+### 🎁 Bonus step - Explore the structure of TestResult
+
+The `TestResult` returned by Microcks can be further checked as it is a comprehensive representation of all the testing cases.
+
+Add this Java block to the `testOpenAPIContract()` method and run your test again:
+
+```java
+// You may inspect complete response object with following:
+ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testResult));
+```
+
+To get some more visual representation of a `TestResult`, you may want to launch the application in test mode and run this test manually using the UI. Explore the different results and information available.
+
 ## Third Test - Verify the business conformance of Order Service API
 
 The above section allows us to validate the technical conformance but not the business one! Imagine we forgot to record all the
@@ -275,6 +320,20 @@ You can now validate this from your Java Unit Test as well! Let's review the tes
 under `src/test/java/org/acme/order/api`:
 
 ```java
+package org.acme.order.api;
+
+import io.github.microcks.testcontainers.model.TestRequest;
+import io.github.microcks.testcontainers.model.TestResult;
+import io.github.microcks.testcontainers.model.TestRunnerType;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.acme.order.BaseIntegrationTest;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class OrderControllerPostmanContractTests extends BaseIntegrationTest {
 
    @Test
