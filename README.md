@@ -1,8 +1,8 @@
-# Microcks Testcontainers Spring Boot Demo
+# Microcks Testcontainers Spring Boot Workshop
 
-![Microcks Testcontainers Spring demo](./assets/microcks-testcontainers-java-spring-demo.png)
+![Microcks Testcontainers Spring workshop](./assets/microcks-testcontainers-java-spring-demo.png)
 
-This application is a demonstration on how to integrate Microcks via [Testcontainers]([https://www.testcontainers.com]) within your development inner-loop.
+This application is a workshop on how to integrate Microcks via [Testcontainers]([https://www.testcontainers.com]) within your development inner-loop.
 
 You will work with a Spring Boot application and explore how to:
 * Use Microcks for **provisioning third-party API mocks**,

@@ -16,42 +16,68 @@ Currently, if you run the application from your terminal, you will see the follo
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
 
- :: Spring Boot ::                (v3.4.5)
+ :: Spring Boot ::                (v3.4.7)
 
-2025-05-09T17:00:57.949+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Starting OrderServiceApplication using Java 17.0.6 with PID 73264 (/Users/laurent/Development/github/microcks-testcontainers-java-spring-demo/target/classes started by laurent in /Users/laurent/Development/github/microcks-testcontainers-java-spring-demo)
-2025-05-09T17:00:57.952+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-06-01T10:49:12.035+02:00  INFO 46316 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Starting OrderServiceApplication using Java 21.0.9 with PID 46316 (/Users/laurent/Development/github/microcks-testcontainers-java-workshop/target/classes started by laurent in /Users/laurent/Development/github/microcks-testcontainers-java-workshop)
+2026-06-01T10:49:12.036+02:00  INFO 46316 --- [  restartedMain] org.acme.order.OrderServiceApplication   : No active profile set, falling back to 1 default profile: "default"
 [...]
-2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
-2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
-2025-05-09T17:00:58.788+02:00  INFO 73264 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1746802858787
-2025-05-09T17:00:58.789+02:00  INFO 73264 --- [  restartedMain] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-order-service-1, groupId=order-service] Subscribed to topic(s): orders-reviewed
-2025-05-09T17:00:58.797+02:00  INFO 73264 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Started OrderServiceApplication in 0.995 seconds (process running for 1.165)
-2025-05-09T17:00:58.870+02:00  INFO 73264 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Node -1 disconnected.
-2025-05-09T17:00:58.871+02:00  WARN 73264 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
+2026-06-01T10:49:12.758+02:00  INFO 46316 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.8.1
+2026-06-01T10:49:12.758+02:00  INFO 46316 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 70d6ff42debf7e17
+2026-06-01T10:49:12.758+02:00  INFO 46316 --- [  restartedMain] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1780303752757
+2026-06-01T10:49:12.759+02:00  INFO 46316 --- [  restartedMain] o.a.k.c.c.internals.LegacyKafkaConsumer  : [Consumer clientId=consumer-order-service-1, groupId=order-service] Subscribed to topic(s): orders-reviewed
+2026-06-01T10:49:12.766+02:00  INFO 46316 --- [  restartedMain] org.acme.order.OrderServiceApplication   : Started OrderServiceApplication in 0.853 seconds (process running for 1.018)
+2026-06-01T10:49:12.837+02:00  INFO 46316 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Node -1 disconnected.
+2026-06-01T10:49:12.837+02:00  WARN 46316 --- [ntainer#0-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-order-service-1, groupId=order-service] Connection to node -1 (localhost/127.0.0.1:9092) could not be established. Node may not be available.
 [...]
 ```
 
-To run the application locally, we need to have a Kafka broker up and running + the other dependencies corresponding to our Pastry API provider and reviewing system.
+You can test the app by creating a simple order with this command:
+
+```shell
+curl -XPOST localhost:8080/api/orders -H 'Content-type: application/json' \
+    -d '{"customerId": "lbroudoux", "productQuantities": [{"productName": "Millefeuille", "quantity": 1}], "totalPrice": 5.1}'
+```
+
+Result is not too bad: `{"productName":"Millefeuille","details":"Pastry Millefeuille is not available"}` but you'll see this error in logs:
+
+```log
+2026-06-01T10:50:41.173+02:00  INFO 49603 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-01T10:50:41.173+02:00  INFO 49603 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-01T10:50:41.173+02:00  INFO 49603 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-06-01T10:50:41.218+02:00 ERROR 49603 --- [nio-8080-exec-1] org.acme.order.service.OrderService      : Got exception from Pastry client: I/O error on GET request for "http://localhost:8082/pastries/Millefeuille": null
+```
+
+> [!Important]
+> To run the application locally, we need to have a Kafka broker up and running + the other dependencies corresponding to our Pastry API provider and reviewing system.
 
 Instead of installing these services on our local machine, or using Docker to run these services manually,
 we will use [Spring Boot support for Testcontainers at Development Time](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.testing.testcontainers.at-development-time) to provision these services automatically.
 
-> **NOTE**
->
+> [!NOTE]
 > Before Spring Boot 3.1.0, Testcontainers libraries are mainly used for testing.
 Spring Boot 3.1.0 introduced out-of-the-box support for Testcontainers which not only simplified testing,
 but we can use Testcontainers for local development as well.
 >
 > To learn more, please read [Spring Boot Application Testing and Development with Testcontainers](https://www.atomicjar.com/2023/05/spring-boot-3-1-0-testcontainers-for-testing-and-local-development/)
 
-In order to see what's needed to run this, you may check the `pom.xml` file.
+In order to see what's needed to run this, you may check the `pom.xml` file and uncomment the block between lines 61 and 68 to enable 
+the `microcks-testcontainers` depedency like below:
+
+```xml
+      <dependency>
+			<groupId>io.github.microcks</groupId>
+			<artifactId>microcks-testcontainers</artifactId>
+			<version>0.4.4</version>
+			<scope>test</scope>
+		</dependency>
+```
 
 
-## Review ContainersConfiguration class under src/test/java/org/acme/order
+## Create ContainersConfiguration class under src/test/java/org/acme/order
 
-In order to specify the dependant services we need, we use a specific Spring `Configuration` class located into `/src/test/java``
+In order to specify the dependant services we need, we use a specific Spring `Configuration` class located into `/src/test/java`.
 
-Let's review `ContainersConfiguration` class under `src/test/java/org/acme/order` to configure the required containers.
+Let's create `ContainersConfiguration` class under `src/test/java/org/acme/order` to configure the required containers.
 
 ```java
 package org.acme.order;
@@ -62,7 +88,7 @@ import io.github.microcks.testcontainers.connection.KafkaConnection;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
@@ -75,7 +101,7 @@ public class ContainersConfiguration {
    @Bean
    @ServiceConnection
    KafkaContainer kafkaContainer() {
-      kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
+      KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
             .withNetwork(network)
             .withNetworkAliases("kafka")
             .withListener(() -> "kafka:19092");
@@ -84,7 +110,7 @@ public class ContainersConfiguration {
 
    @Bean
    MicrocksContainersEnsemble microcksEnsemble(KafkaContainer kafkaContainer) {
-      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.11.2")
+      MicrocksContainersEnsemble ensemble = new MicrocksContainersEnsemble(network, "quay.io/microcks/microcks-uber:1.14.0-native")
             .withPostman()             // We need this to do contract-testing with Postman collection
             .withAsyncFeature()        // We need this for async mocking and contract-testing
             .withAccessToHost(true)    // We need this to access our webapp while it runs
@@ -117,12 +143,12 @@ Let's understand what this configuration class does:
   This configuration will automatically start these containers and register the **Kafka** connection properties automatically.
 * We also configure a `MicrocksContainersEnsemble` that will be responsible for providing mocks for our 3rd party systems.
   As REST Client URL properties are not standard ones, Microcks does not contribute any `ServiceConnection`. 
-* Instead, we have  the ability to use the `DynamicPropertyRegistrar` to wire our application properties corresponding to REST Client URL 
+* Instead, we have the ability to use the `DynamicPropertyRegistrar` to wire our application properties corresponding to REST Client URL 
   and Kafka Topic name. This way our application is using the endpoints that are provided by Microcks.
 
 And that's it! 🎉 You don't need to download and install extra-things, or clone other repositories and figure out how to start your dependant services. 
 
-## Review TestOrderServiceApplication class under src/test/java/org/acme/order
+## Create TestOrderServiceApplication class under src/test/java/org/acme/order
 
 Next, let's create a `TestOrderServiceApplication` class under `src/test/java` to start the application with the containers configuration.
 
@@ -133,7 +159,6 @@ import org.springframework.boot.SpringApplication;
 
 /**
  * A Test instance of the OrderServiceApplication.
- * @author laurent
  */
 class TestOrderServiceApplication {
 
@@ -145,29 +170,32 @@ class TestOrderServiceApplication {
 }
 ```
 
-Run the `TestOrderServiceApplication` from our IDE and verify that the application starts successfully. 🙌
+Run the `TestOrderServiceApplication` from our IDE or using the `./mvnw spring-boot:test-run` command and verify that the application starts successfully. 🙌
 
 You should see the container startups messages into the logs:
 
 ```shell
 [...]
-16:56:24.419 [main] INFO  org.testcontainers.DockerClientFactory - Checking the system...
-16:56:24.419 [main] INFO  org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
-16:56:24.423 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Creating container for image: confluentinc/cp-kafka:7.5.0
-16:56:24.500 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 is starting: 44c1859c5f78528e2bca9868e52731ef5148f99f6142bbe0cb8ba9e23197199b
-16:56:27.355 [main] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 started in PT2.931612S
-16:56:27.355 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Creating container for image: quay.io/microcks/microcks-uber:1.11.2
-16:56:27.409 [main] INFO  tc.testcontainers/sshd:1.2.0 - Creating container for image: testcontainers/sshd:1.2.0
-16:56:27.433 [main] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 is starting: 03f99cba3223ce9d2b972462f9ca0167b8974d1f0376e8f99867a454aae2f006
-16:56:27.644 [main] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 started in PT0.235162S
-16:56:27.733 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Container quay.io/microcks/microcks-uber:1.11.2 is starting: e51a3a42b29c2dae3efbd0766a43ff04f031cec4774e9f455a549f18d44910ae
-16:56:30.560 [main] INFO  tc.quay.io/microcks/microcks-uber:1.11.2 - Container quay.io/microcks/microcks-uber:1.11.2 started in PT3.205068S
-16:56:30.893 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Creating container for image: quay.io/microcks/microcks-postman-runtime:latest
-16:56:30.937 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest is starting: 32c1bb9511ffda7ecd35c16eb90251301980a0c047ede0b4fed8b068040cfee7
-16:56:31.342 [main] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest started in PT0.448918S
-16:56:31.345 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Creating container for image: quay.io/microcks/microcks-uber-async-minion:1.11.2
-16:56:31.376 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Container quay.io/microcks/microcks-uber-async-minion:1.11.2 is starting: 4fb71aac11a9b55fbade81ae504e2f934db68de9a644d242f81410a724506478
-16:56:32.944 [main] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.11.2 - Container quay.io/microcks/microcks-uber-async-minion:1.11.2 started in PT1.598934S
+11:01:59.469 [restartedMain] INFO  org.testcontainers.DockerClientFactory - Checking the system...
+11:01:59.469 [restartedMain] INFO  org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+11:01:59.471 [restartedMain] INFO  tc.confluentinc/cp-kafka:7.5.0 - Creating container for image: confluentinc/cp-kafka:7.5.0
+11:01:59.517 [restartedMain] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 is starting: efa615494f9db8d0a4c68515981b74213d4871bd68c26b806adbf1a0cd605c7e
+11:02:01.469 [restartedMain] INFO  tc.confluentinc/cp-kafka:7.5.0 - Container confluentinc/cp-kafka:7.5.0 started in PT1.998526S
+11:02:01.470 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.14.0-native - Creating container for image: quay.io/microcks/microcks-uber:1.14.0-native
+11:02:01.541 [restartedMain] INFO  tc.testcontainers/sshd:1.2.0 - Creating container for image: testcontainers/sshd:1.2.0
+11:02:01.568 [restartedMain] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 is starting: 159606381d42e5acba2aaea750c7d1a0428450daa7391f0dae4340c697a7ce9f
+11:02:01.712 [restartedMain] INFO  tc.testcontainers/sshd:1.2.0 - Container testcontainers/sshd:1.2.0 started in PT0.171619S
+11:02:01.786 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.14.0-native - Container quay.io/microcks/microcks-uber:1.14.0-native is starting: 8bc3eca74c136c53d0339543db02b8cb8890e018f7e7d091111c25ab96ad0c25
+11:02:02.196 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber:1.14.0-native - Container quay.io/microcks/microcks-uber:1.14.0-native started in PT0.726629S
+11:02:02.232 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Creating container for image: quay.io/microcks/microcks-postman-runtime:latest
+11:02:02.261 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest is starting: 2b3d05e2790678b5ccfb288eba68d1f13f85a4cf0366237dd54aff556bf96a34
+11:02:02.637 [restartedMain] INFO  tc.quay.io/microcks/microcks-postman-runtime:latest - Container quay.io/microcks/microcks-postman-runtime:latest started in PT0.405526S
+11:02:02.641 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.14.0 - Creating container for image: quay.io/microcks/microcks-uber-async-minion:1.14.0
+11:02:02.674 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.14.0 - Container quay.io/microcks/microcks-uber-async-minion:1.14.0 is starting: 911fb8a8f48443bacdbb4c1474afd6494cbdad6b9f3f5731fef50cb1a90460a4
+11:02:03.914 [restartedMain] INFO  tc.quay.io/microcks/microcks-uber-async-minion:1.14.0 - Container quay.io/microcks/microcks-uber-async-minion:1.14.0 started in PT1.273097S
+11:02:04.206 [restartedMain] INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+11:02:04.225 [restartedMain] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+11:02:04.229 [restartedMain] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
 [...]
 ```
 
@@ -186,10 +214,10 @@ You should get a response similar to the following:
 < HTTP/1.1 201 
 < Content-Type: application/json
 < Transfer-Encoding: chunked
-< Date: Mon, 29 Jan 2024 17:15:42 GMT
+< Date: Mon, 01 Jun 2026 09:04:35 GMT
 < 
 * Connection #0 to host localhost left intact
-{"id":"2da3a517-9b3b-4788-81b5-b1a1aac71746","status":"CREATED","customerId":"lbroudoux","productQuantities":[{"productName":"Millefeuille","quantity":1}],"totalPrice":5.1}%
+{"id":"745dee7b-bb30-4076-8ede-e526c3a61060","status":"CREATED","customerId":"lbroudoux","productQuantities":[{"productName":"Millefeuille","quantity":1}],"totalPrice":5.1}%   
 ```
 
 Now test with something else, requesting for another Pastry:
@@ -205,7 +233,7 @@ This time you get another "exception" response:
 < HTTP/1.1 422 
 < Content-Type: application/json
 < Transfer-Encoding: chunked
-< Date: Mon, 29 Jan 2024 17:19:08 GMT
+< Date: Mon, 01 Jun 2026 09:04:59 GMT
 < 
 * Connection #0 to host localhost left intact
 {"productName":"Eclair Chocolat","details":"Pastry Eclair Chocolat is not available"}%

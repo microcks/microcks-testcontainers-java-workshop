@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.4.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.acme</groupId>
@@ -62,26 +62,26 @@
 		<dependency>
 			<groupId>io.github.microcks</groupId>
 			<artifactId>microcks-testcontainers</artifactId>
-			<version>0.3.1</version>
+			<version>0.4.4</version>
 			<scope>test</scope>
 		</dependency>
 		-->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>kafka</artifactId>
-			<version>1.20.6</version>
+			<version>1.21.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>redpanda</artifactId>
-			<version>1.20.6</version>
+			<version>1.21.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>1.20.6</version>
+			<version>1.21.4</version>
 			<scope>test</scope>
 		</dependency>
 
