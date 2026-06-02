@@ -316,7 +316,7 @@ pm.test("Correct products and quantities in order", function () {
 
 This snippet typically describes business constraints telling that a valid order response should have unchanged product and quantities.  
 
-You can now validate this from your Java Unit Test as well! Let's review the test class `OrderControllerPostmanContractTests` 
+You can now validate this from your Java Unit Test as well! Let's create the test class `OrderControllerPostmanContractTests` 
 under `src/test/java/org/acme/order/api`:
 
 ```java

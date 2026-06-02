@@ -202,7 +202,7 @@ The final thing we want to test here is that our `OrderEventListener` component 
 for consuming messages, for de-serializing them into correct Java objects and for triggering the processing on the `OrderService`.
 That's a lot to do and can be quite complex! But things remain very simple with Microcks 😉
 
-Let's review the test class `OrderEventListenerTests` under `src/test/java/org/acme/order/service` and the well-named `testEventIsConsumedAndProcessedByService()`
+Let's create the test class `OrderEventListenerTests` under `src/test/java/org/acme/order/service` and the well-named `testEventIsConsumedAndProcessedByService()`
 method:
 
 ```java
